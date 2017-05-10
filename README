@@ -1,0 +1,14 @@
+# jircc - Java IRC Client
+
+## IRC
+
+IRC, or Internet Relay Chat, is a way for people
+to communicate. For more information about IRC, see the
+wikipedia page: https://en.wikipedia.org/wiki/Internet_Relay_Chat
+
+## about jircc
+
+jircc is a simple IRC chat client that allows for the
+user to connect to a server and chat on it.
+
+
