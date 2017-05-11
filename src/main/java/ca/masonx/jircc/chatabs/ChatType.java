@@ -1,0 +1,12 @@
+package ca.masonx.jircc.chatabs;
+
+public enum ChatType {
+	CHAT_MESSAGE,
+	JOIN_MESSAGE,
+	PART_MESSAGE,
+	QUIT_MESSAGE,
+	KICK_MESSAGE,
+	MODE_MESSAGE,
+	NICK_MESSAGE,
+	UNKNOWN_MESSAGE
+}
