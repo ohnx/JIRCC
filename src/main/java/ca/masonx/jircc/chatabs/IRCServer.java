@@ -36,15 +36,15 @@ public class IRCServer {
 	
 	public void connect() throws UnknownHostException, IOException {
 		socket = new Socket(hostname, port);
-		System.out.println("*** Socket connected.");
+		System.out.println("** Socket connected.");
 		
 		osw = new OutputStreamWriter(socket.getOutputStream());
 		isr = new InputStreamReader(socket.getInputStream());
-		System.out.println("*** Opened OutputStreamWriter and InputStreamReader.");
+		System.out.println("** Opened OutputStreamWriter and InputStreamReader.");
 		
 		bw = new BufferedWriter(osw);
 		br = new BufferedReader(isr);
-		System.out.println("*** Opened BufferedWriter and BufferedReader.");
+		System.out.println("** Opened BufferedWriter and BufferedReader.");
 		
 		isConnected = true;
 	}
@@ -78,5 +78,5 @@ public class IRCServer {
 		isr.close();
 		socket.close();
 		isConnected = false;
-	}
+	}/* string.split("=", 2); */
 }

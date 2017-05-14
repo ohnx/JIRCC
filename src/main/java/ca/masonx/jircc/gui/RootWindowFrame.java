@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 public class RootWindowFrame extends JFrame {
 	private static final long serialVersionUID = -3795903020865438478L;
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public RootWindowFrame() {
         //Options for the JComboBox 
         String[] fruitOptions = {"Apple", "Apricot", "Banana"
