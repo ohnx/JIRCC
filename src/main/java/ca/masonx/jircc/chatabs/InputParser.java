@@ -85,7 +85,24 @@ public class InputParser {
 			channel = moresplit[0];
 			message = "by " + split[0].split("!", 2)[0] + " (" + moresplit[2].substring(1) + ")"; /* remove the leading colon from kick reason */
 			ct = ChatType.KICK_MESSAGE;
+		} else if (split[1].equals("MODE")) {
+			/*
+			 * Sample messages: (after removing first char)
+			 * ohnx!~ohnx@unaffiliated/ohnx MODE ##opmeplz +o ohnx-
+			 * ohnx!~ohnx@unaffiliated/ohnx MODE ##opmeplz +ov ohnx- nick
+			 * ohnx!~ohnx@unaffiliated/ohnx MODE ##opmeplz +m
+			 * ohnx- MODE ohnx- :+i
+			 * 
+			 * split(3) will produce
+			 * ["ohnx!~ohnx@unaffiliated/ohnx", "MODE", "##opmeplz +o ohnx-"]
+			 */
+			String moresplit[] = split[2].split(" ", 2); /* split into the channel and the operation done */
+			sender = split[0].split("!", 2)[0];
+			channel = moresplit[0];
+			message = moresplit[1].charAt(0) == ':' ? moresplit[1].substring(1) : moresplit[1]; /* remove the leading colon if it is there */
+			ct = ChatType.MODE_MESSAGE;
 		} else if (split[1].equals("QUIT")) {
+
 			/*
 			 * Sample message: (after removing first char)
 			 * nick1!somebody@1.2.3.4 QUIT :Client Quit
@@ -97,7 +114,7 @@ public class InputParser {
 						
 			channel = "_"; /* We do not actually immediately know what channels this is in */
 			message = split[2].substring(1); /* remove the leading colon from quit message */
-			ct = ChatType.NICK_MESSAGE;
+			ct = ChatType.QUIT_MESSAGE;
 		} else if (split[1].equals("NICK")) {
 			/*
 			 * Sample message: (after removing first char)
@@ -110,7 +127,7 @@ public class InputParser {
 						
 			channel = "_"; /* We do not actually immediately know what channels this is in */
 			message = split[2].substring(1); /* remove the leading colon from new nick */
-			ct = ChatType.QUIT_MESSAGE;
+			ct = ChatType.NICK_MESSAGE;
 		} else {
 			throw new NotChatMessageException("Not a chat message!");
 		}

@@ -33,7 +33,7 @@ public class ChatMessage implements Serializable {
 		case KICK_MESSAGE:
 			return "[" + dateFormat.format(timeRecv) + "] " + sender + " was kicked from the channel " + message + ".";
 		case MODE_MESSAGE:
-			return "[" + dateFormat.format(timeRecv) + "] " + sender + " " + message + ".";
+			return "[" + dateFormat.format(timeRecv) + "] " + sender + " changed mode: " + message + ".";
 		case NICK_MESSAGE:
 			return "[" + dateFormat.format(timeRecv) + "] " + sender + " is now known as " + message + ".";
 		case UNKNOWN_MESSAGE:

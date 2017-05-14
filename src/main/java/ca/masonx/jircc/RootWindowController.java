@@ -34,7 +34,7 @@ public class RootWindowController {
 				}
 			}
 			
-			irctest.send("JOIN ##opmeplz");
+			irctestuser.joinChannel("##opmeplz");
 						
 			ParserResult pr;
 			
@@ -44,12 +44,25 @@ public class RootWindowController {
 					pr = InputParser.parseChatMessage(line);
 					System.out.println("*** Chan:`" + pr.channel + "`" + ", " + pr.message);
 					
+					if (pr.message.message.contains("JOINCHAN")) {
+						irctestuser.joinChannel("#/");
+					} else if (pr.message.message.contains("BYE")) {
+						irctestuser.disconnectFromServer("\"Bye, friends!\"");
+					}
+					
 					irctestuser.addMessageToBuffer(pr.channel, pr.message);
 				} catch (NotChatMessageException e) {
 					/* not a chat message */
 					if (line.toUpperCase().startsWith("PING ")) {
 		                // We must respond to PINGs to avoid being disconnected.
 		                irctest.send("PONG " + line.substring(5));
+		            } else if (line.contains("353")) {
+		            	// this is a NAMES listing
+		            	/* ie, :orwell.freenode.net 353 ohnx- = #channel :ohnx- names... */
+		            	String ircnames[] = line.split(" :");
+		            	String intermediate[] = ircnames[0].split(" ");
+		            	String ircchan = intermediate[intermediate.length - 1];
+		            	irctestuser.addNamesToBuffer(ircchan, ircnames[1].split(" "));
 		            }
 				}
 			}
