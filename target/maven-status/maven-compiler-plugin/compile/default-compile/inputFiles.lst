@@ -1,9 +1,11 @@
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/IRCBuffer.java
+/Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/tasks/NetConnection.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/ChatMessage.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/gui/RootWindowFrame.java
+/Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/RootApplicationController.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/InputParser.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/ChatType.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/IRCUser.java
-/Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/RootWindowController.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/NotChatMessageException.java
+/Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/gui/GUITask.java
 /Users/mason/Documents/workspace/jircc/src/main/java/ca/masonx/jircc/chatabs/IRCServer.java

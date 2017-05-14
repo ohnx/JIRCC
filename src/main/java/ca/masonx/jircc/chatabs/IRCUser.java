@@ -25,6 +25,16 @@ public class IRCUser {
 		this.realname = realname;
 	}
 	
+	public IRCBuffer getBuffer(String name) {
+		if (buffers.containsKey(name)) {
+			return buffers.get(name);
+		} else {
+			IRCBuffer buf = new IRCBuffer(name);
+			buffers.put(name, buf);
+			return buf;
+		}
+	}
+	
 	public String getNickname() {
 		return nickname;
 	}
@@ -89,12 +99,14 @@ public class IRCUser {
 	
 	public void addMessageToBuffer(String channel, ChatMessage cm) {
 		String bufname = channel;
-		if (channel.equalsIgnoreCase("_")) {
+		if (channel.equals("_")) {
 			/* add it to all! */
 			for (Entry<String, IRCBuffer> ib : buffers.entrySet()) {
 				ib.getValue().addChat(cm);;
 			}
 			return;
+		} else if (channel.equals("*")) {
+			/* special */
 		} else if (channel.charAt(0) != '#' && !cm.sender.equals(nickname)) {
 			/* Check if this is a private message; if it is, we need to swap the buffer name */
 			bufname = cm.sender;
@@ -103,19 +115,20 @@ public class IRCUser {
 		IRCBuffer buf = buffers.get(bufname);
 		
 		if (buf == null) {
+			System.out.println("Making new buffer!");
 			buf = new IRCBuffer(bufname);
 			buf.addChat(cm);
 			buffers.put(bufname, buf);
 		} else {
 			buf.addChat(cm);
 		}
-		
+		/* Debug code.
 		System.out.println("Buffer is now:");
 		
 		for (Entry<String, IRCBuffer> ib : buffers.entrySet()) {
 			System.out.println("------\n" + ib.getKey() + ":\n" + ib.getValue());
 		}
 		
-		System.out.println("------");
+		System.out.println("------");*/
 	}
 }

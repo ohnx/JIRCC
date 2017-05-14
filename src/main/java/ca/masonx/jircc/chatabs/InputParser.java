@@ -129,7 +129,8 @@ public class InputParser {
 			message = split[2].substring(1); /* remove the leading colon from new nick */
 			ct = ChatType.NICK_MESSAGE;
 		} else {
-			throw new NotChatMessageException("Not a chat message!");
+			return new ParserResult("*", new ChatMessage(line, split[0], now, ChatType.UNKNOWN_MESSAGE));
+			// throw new NotChatMessageException("Not a chat message!");
 		}
 		
 		return new ParserResult(channel, new ChatMessage(message, sender, now, ct));
