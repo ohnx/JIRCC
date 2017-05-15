@@ -2,17 +2,18 @@ package ca.masonx.jircc.chatabs;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class IRCBuffer implements Serializable {
 	private static final long serialVersionUID = -7566709593901748331L;
-	private ArrayList<ChatMessage> chats;
-	private ArrayList<String> participants;
+	private CopyOnWriteArrayList<ChatMessage> chats;
+	private CopyOnWriteArrayList<String> participants;
 	private boolean hasChanged = false;
 	public final String name;
 	
 	public IRCBuffer(String name) {
-		chats = new ArrayList<ChatMessage>();
-		participants = new ArrayList<String>();
+		chats = new CopyOnWriteArrayList<ChatMessage>();
+		participants = new CopyOnWriteArrayList<String>();
 		this.name = name;
 	}
 	

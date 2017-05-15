@@ -9,6 +9,7 @@ public class IRCUser {
 	private String nickname;
 	private final String ident;
 	private final String realname;
+	private boolean buffersHaveChanged = false;
 	private IRCServer myServer;
 	private HashMap<String,IRCBuffer> buffers;
 	
@@ -33,6 +34,31 @@ public class IRCUser {
 			buffers.put(name, buf);
 			return buf;
 		}
+	}
+	
+	public String[] getBuffers() {
+		return buffers.keySet().toArray(new String[buffers.size()]);
+	}
+	
+	public boolean haveBuffersChanged() {
+		if (buffersHaveChanged) {
+			buffersHaveChanged = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	protected IRCBuffer createNewBuffer(String name) {
+		IRCBuffer buf = buffers.get(name);
+		
+		if (buf == null) {
+			buf = new IRCBuffer(name);
+			buffers.put(name, buf);
+			buffersHaveChanged = true;
+		}
+		
+		return buf;
 	}
 	
 	public String getNickname() {
@@ -72,22 +98,13 @@ public class IRCUser {
 	
 	public void joinChannel(String channel) throws IOException {
 		if (channel.charAt(0) != '#') return;
-		IRCBuffer buf = buffers.get(channel);
 		
-		if (buf == null) {
-			buf = new IRCBuffer(channel);
-			buffers.put(channel, buf);
-		}
 		myServer.send("JOIN " + channel);
+		createNewBuffer(channel);
 	}
 	
 	public void addNamesToBuffer(String channel, String names[]) {
-		IRCBuffer buf = buffers.get(channel);
-		
-		if (buf == null) {
-			buf = new IRCBuffer(channel);
-			buffers.put(channel, buf);
-		}
+		IRCBuffer buf = createNewBuffer(channel);
 		
 		for (String name : names) {
 			/* when a user is voiced or opped, their nick starts with a @ or +; we do not want this in our listings */
@@ -112,16 +129,8 @@ public class IRCUser {
 			bufname = cm.sender;
 		}
 		
-		IRCBuffer buf = buffers.get(bufname);
-		
-		if (buf == null) {
-			System.out.println("Making new buffer!");
-			buf = new IRCBuffer(bufname);
-			buf.addChat(cm);
-			buffers.put(bufname, buf);
-		} else {
-			buf.addChat(cm);
-		}
+		IRCBuffer buf = createNewBuffer(bufname);
+		buf.addChat(cm);
 		/* Debug code.
 		System.out.println("Buffer is now:");
 		
