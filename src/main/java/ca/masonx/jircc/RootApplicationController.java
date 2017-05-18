@@ -23,7 +23,7 @@ public class RootApplicationController {
 		// Center frame
 		rwf.setLocationRelativeTo(null);
 		
-		nc = new NetConnection("irc.esper.net:6667", "somethingohnxbot");
+		nc = new NetConnection("irc.freenode.net:6667", "actuallynotohnx");
 		
 		new Thread(nc).start();
 	}
@@ -37,7 +37,11 @@ public class RootApplicationController {
 		boolean shouldUpdate = false;
 		
 		while (rwf.isVisible()) {
-			while (!nc.hasBufferChanged(rwf.getMonitoring()) && !nc.user.haveBuffersChanged() && !rwf.monitoringChanged()) {
+			/* we monitor for events */
+			while (!nc.hasBufferChanged(rwf.getMonitoring()) &&
+					!nc.user.haveBuffersChanged() &&
+					!nc.hasBufferParticipantsChanged(rwf.getMonitoring()) &&
+					!rwf.monitoringChanged()) {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {}
@@ -48,14 +52,18 @@ public class RootApplicationController {
 				rwf.clearMessagesItems();
 				monitoring = rwf.getMonitoring();
 				shouldUpdate = true;
+				rwf.setParticipantsItems(nc.user.getBuffer(monitoring).getParticipants());
+				System.out.println("Caught change!");
 			}
 			newIndex = nc.user.getBuffer(monitoring).length();
 			if (shouldUpdate || newIndex != lastIndex) {
 				arrdm = nc.user.getBuffer(monitoring).getChats(lastIndex, newIndex - 1);
 				lastIndex = newIndex;
 				rwf.updateMessagesItems(arrdm);
-			} else { /* likely the buffers changed */
+				shouldUpdate = false;
+			} else { /* likely the buffers changed or participants changed */
 				rwf.setBuffersItems(nc.user.getBuffers());
+				rwf.setParticipantsItems(nc.user.getBuffer(monitoring).getParticipants());
 			}
 		}
 	}

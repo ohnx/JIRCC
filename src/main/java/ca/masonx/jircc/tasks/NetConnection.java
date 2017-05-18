@@ -3,6 +3,7 @@ package ca.masonx.jircc.tasks;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import ca.masonx.jircc.chatabs.ChatMessage;
 import ca.masonx.jircc.chatabs.ChatType;
 import ca.masonx.jircc.chatabs.IRCServer;
 import ca.masonx.jircc.chatabs.IRCUser;
@@ -23,9 +24,14 @@ public class NetConnection implements Runnable {
 		return user.getBuffer(name).hasChanged();
 	}
 	
+	public boolean hasBufferParticipantsChanged(String name) {
+		return user.getBuffer(name).hasParticipantsChanged();
+	}
+	
 	public void run() {
 		String line;
 		ParserResult pr;
+		boolean addToBuffer = true;
 		
 		try {
 			server.connect();
@@ -48,6 +54,12 @@ public class NetConnection implements Runnable {
 			            	String intermediate[] = ircnames[0].split(" ");
 			            	String ircchan = intermediate[intermediate.length - 1];
 			            	user.addNamesToBuffer(ircchan, ircnames[1].split(" "));
+			            	addToBuffer = false;
+			            } else if (pr.message.message.contains("332")) {
+			            	// this is a TOPIC listing
+			            	user.addMessageToBuffer(pr.message.message.split(" ", 5)[3],
+			            			new ChatMessage(pr.message.message.split(" :", 2)[1], "unknown", pr.message.timeRecv, ChatType.TOPIC_MESSAGE));
+			            	addToBuffer = false;
 			            } else if (pr.message.message.contains("433")) {
 			            	/* nickname in use */
 							System.out.println("** Nickname is already in use, trying another.");
@@ -55,13 +67,14 @@ public class NetConnection implements Runnable {
 						}
 					} else {
 						if (pr.message.message.contains("JOINCHAN")) {
-							user.joinChannel("##ohnxsecret");
+							user.joinChannel("#freenode");
 						} else if (pr.message.message.contains("BYE")) {
 							user.disconnectFromServer("\"Bye, friends!\"");
 						}
 					}
 					
-					user.addMessageToBuffer(pr.channel, pr.message);
+					if (addToBuffer) user.addMessageToBuffer(pr.channel, pr.message);
+					addToBuffer = true;
 				} catch (NotChatMessageException e) {
 					/* not a chat message */
 					if (line.toUpperCase().startsWith("PING ")) {

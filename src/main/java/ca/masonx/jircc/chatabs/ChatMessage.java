@@ -36,6 +36,8 @@ public class ChatMessage implements Serializable {
 			return "[" + dateFormat.format(timeRecv) + "] " + sender + " changed mode: " + message + ".";
 		case NICK_MESSAGE:
 			return "[" + dateFormat.format(timeRecv) + "] " + sender + " is now known as " + message + ".";
+		case TOPIC_MESSAGE:
+			return "[" + dateFormat.format(timeRecv) + "] Topic for channel is: " + message;
 		case UNKNOWN_MESSAGE:
 		default:
 			return "[" + dateFormat.format(timeRecv) + "] " + message;

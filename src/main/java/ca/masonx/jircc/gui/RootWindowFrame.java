@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
@@ -19,12 +18,16 @@ import javax.swing.SwingUtilities;
 public class RootWindowFrame extends JFrame {
 	private static final long serialVersionUID = -3795903020865438478L;
 	private JSplitPane splitView;
+	private JSplitPane splitViewTwo;
 	private JScrollPane messagesScroll;
 	private JScrollPane buffersScroll;
+	private JScrollPane namesScroll;
 	private JList<String> messages;
 	private JList<String> buffers;
+	private JList<String> names;
 	private DefaultListModel<String> messagesModel = new DefaultListModel<String>();
 	private DefaultListModel<String> buffersModel = new DefaultListModel<String>();
+	private DefaultListModel<String> namesModel = new DefaultListModel<String>();
 	private String monitoring = "*";
 	private boolean hasMonitoringChanged = false;
 
@@ -63,16 +66,32 @@ public class RootWindowFrame extends JFrame {
 			}
 		});
 		
-		/* Main panel Management */
-		this.setLayout(new GridLayout(1,2));
-		splitView = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, messagesScroll, buffersScroll);
+		/* names Management */
+		namesScroll = new JScrollPane();
+		names = new JList<String>(namesModel);
+		namesScroll.setViewportView(names);
+		names.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		names.setLayoutOrientation(JList.VERTICAL);
+		names.setFont(mono);
+		
+		/* Buffers + Messages Management */
+		splitView = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buffersScroll, messagesScroll);
 		splitView.setDividerLocation(150);
 		splitView.setVisible(true);
 		
-		//Provide minimum sizes for the two components in the split pane
-		messagesScroll.setMinimumSize(new Dimension(300, 200));
+		/* (Buffers + Messages) + Names Management */
+		splitViewTwo = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, splitView, namesScroll);
+		splitViewTwo.setDividerLocation(450);
+		splitViewTwo.setVisible(true);
+		
+		/* panel minimum sizes */
 		buffersScroll.setMinimumSize(new Dimension(150, 200));
-		this.add(splitView, BorderLayout.CENTER);
+		messagesScroll.setMinimumSize(new Dimension(300, 200));
+		namesScroll.setMinimumSize(new Dimension(150, 200));
+		
+		/* main panel management */
+		this.setLayout(new GridLayout(1,2));
+		this.add(splitViewTwo, BorderLayout.CENTER);
     }
 	
 	public void clearMessagesItems() {
@@ -95,6 +114,17 @@ public class RootWindowFrame extends JFrame {
 				buffersModel.clear();
 				for (String s : items) {
 					buffersModel.addElement(s);
+				}
+			}
+		});
+	}
+	
+	public void setParticipantsItems(final String[] participants) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				namesModel.clear();
+				for (String s : participants) {
+					namesModel.addElement(s);
 				}
 			}
 		});
