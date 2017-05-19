@@ -33,6 +33,12 @@ public class InputParser {
 			channel = chanmess[0];
 			message = chanmess[1];
 			ct = ChatType.CHAT_MESSAGE;
+			
+			if (message.contains("\u0001ACTION")) {
+				/* remove leading "\0x01CTCP ACTION " and trailing "0x01" */
+				message = message.substring(8, message.length() - 1);
+				ct = ChatType.ACTION_MESSAGE;
+			}
 		} else if (split[1].equals("PART")) {
 			/*
 			 * Sample messages: (after removing first char)

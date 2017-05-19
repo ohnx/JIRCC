@@ -24,6 +24,8 @@ public class ChatMessage implements Serializable {
 		switch (ct) {
 		case CHAT_MESSAGE:
 			return "[" + dateFormat.format(timeRecv) + "] <" + sender + "> " + message;
+		case ACTION_MESSAGE:
+			return "[" + dateFormat.format(timeRecv) + "] * " + sender + " " + message;
 		case JOIN_MESSAGE:
 			return "[" + dateFormat.format(timeRecv) + "] " + sender + " joined the channel.";
 		case PART_MESSAGE:

@@ -2,6 +2,7 @@ package ca.masonx.jircc.chatabs;
 
 public enum ChatType {
 	CHAT_MESSAGE,
+	ACTION_MESSAGE,
 	JOIN_MESSAGE,
 	PART_MESSAGE,
 	QUIT_MESSAGE,
