@@ -1,3 +1,8 @@
+/**
+ * RootWindowFrame.java
+ * 
+ * This class describes the main GUI.
+ */
 package ca.masonx.jircc.gui;
 
 import java.awt.BorderLayout;

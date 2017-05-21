@@ -1,3 +1,8 @@
+/**
+ * IRCServer.java
+ * 
+ * Abstraction for the IRC Server
+ */
 package ca.masonx.jircc.chatabs;
 
 import java.io.BufferedReader;
@@ -18,6 +23,12 @@ public class IRCServer {
 	private InputStreamReader isr;
 	private boolean isConnected = false;
 	
+	/**
+	 * Create a new instance of an IRCServer, without connecting yet.
+	 * 
+	 * @param hostnameFull - Full hostname, possibly including port (if none, will assume 6667)
+	 * @throws NumberFormatException - There was a colon in the server name, but it was not followed by a number
+	 */
 	public IRCServer(String hostnameFull) throws NumberFormatException {
 		if (hostnameFull.contains(":")) {
 			String[] parts = hostnameFull.split(":");
@@ -29,11 +40,23 @@ public class IRCServer {
 		}
 	}
 	
+	/**
+	 * Create a new instance of an IRCServer, without connecting yet.
+	 * 
+	 * @param hostname - the hostname of the server
+	 * @param port - the port to connect to on the server
+	 */
 	public IRCServer(String hostname, int port) {
 		this.hostname = hostname;
 		this.port = port;
 	}
 	
+	/**
+	 * Attempt a connection to the desired server.
+	 * 
+	 * @throws UnknownHostException - Could not resolve the domain
+	 * @throws IOException - Failed writing to the socke
+	 */
 	public void connect() throws UnknownHostException, IOException {
 		socket = new Socket(hostname, port);
 		System.out.println("** Socket connected.");
@@ -49,14 +72,27 @@ public class IRCServer {
 		isConnected = true;
 	}
 	
+	/**
+	 * Get the buffered writer to talk to the server.
+	 * @return BufferedWriter
+	 */
 	protected BufferedWriter getBW() {
 		return bw;
 	}
 	
+	/**
+	 * Get the buffered reader to receive from the server.
+	 * @return BufferedReader
+	 */
 	protected BufferedReader getBR() {
 		return br;
 	}
 	
+	/**
+	 * Send data to the server
+	 * @param msg - what to send to the server
+	 * @throws IOException - Failed to write to the server
+	 */
 	public void send(String msg) throws IOException {
 		if (!isConnected) throw new IOException("Not connected to a server!");
 		System.out.println("<< " + msg);
@@ -65,12 +101,21 @@ public class IRCServer {
 		bw.flush();
 	}
 	
+	/**
+	 * Get a line from the server
+	 * @return A line that was read
+	 * @throws IOException Could not read from the server
+	 */
 	public String getLine() throws IOException {
 		String line = br.readLine();
 		System.out.println(">> " + line);
 		return line;
 	}
 	
+	/**
+	 * Disconnect from the server and clean up readers/writers.
+	 * @throws IOException - Could not disconnect
+	 */
 	public void disconnect() throws IOException {
 		bw.close();
 		br.close();
@@ -78,5 +123,5 @@ public class IRCServer {
 		isr.close();
 		socket.close();
 		isConnected = false;
-	}/* string.split("=", 2); */
+	}
 }

@@ -1,70 +1,43 @@
+/**
+ * RootApplicationController.java
+ * 
+ * The RootApplicationController contains the entry point for the application.
+ * It serves a purpose of initial setup for other classes. It opens the main
+ * GUI interface and also starts the thread for the network connection.
+ */
 package ca.masonx.jircc;
 
-import javax.swing.JFrame;
-
-import ca.masonx.jircc.gui.RootWindowFrame;
-import ca.masonx.jircc.tasks.NetConnection;
+import ca.masonx.jircc.gui.MainWindow;
+import ca.masonx.jircc.gui.SettingsWindow;
 
 public class RootApplicationController {
-	RootWindowFrame rwf;
-	NetConnection nc;
-	
+	public static String version = "JIRCC v0.01-SNAPSHOT";
+	/**
+	 * Main entry point for application.
+	 * @param args Command-line args (ignored at the moment)
+	 */
 	public static void main(String[] args) {
-		RootApplicationController rwc = new RootApplicationController();
-		rwc.openWindow();
+		new RootApplicationController().mainApplicationLoop();
+		/* Fall through here, application ends here */
 	}
 	
-	private RootApplicationController() {
-		rwf = new RootWindowFrame();
-		// Basic window properties
-		rwf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		rwf.setTitle("JIRCC");
-		rwf.setSize(550, 450);
-		// Center frame
-		rwf.setLocationRelativeTo(null);
+	/**
+	 * Main application loop - open the settings dialog, 
+	 */
+	protected void mainApplicationLoop() {
+		String server = "irc.freenode.net:6667";
+		String nick = ""; // TODO: Make this the system username
 		
-		nc = new NetConnection("irc.freenode.net:6667", "actuallynotohnx");
+		/* open the settings window */
+		SettingsWindow sw = new SettingsWindow(server, nick);
 		
-		new Thread(nc).start();
-	}
-
-	private void openWindow() {
-		rwf.setVisible(true);
+		/* Get results from SettingsWindow */
+		server = sw.server;
+		nick = sw.nick;
+			
+		/* create and open the main window */
+		new MainWindow(server, nick).open();
 		
-		int lastIndex = 0, newIndex = -1;
-		String monitoring = "*";
-		String arrdm[];
-		boolean shouldUpdate = false;
-		
-		while (rwf.isVisible()) {
-			/* we monitor for events */
-			while (!nc.hasBufferChanged(rwf.getMonitoring()) &&
-					!nc.user.haveBuffersChanged() &&
-					!nc.hasBufferParticipantsChanged(rwf.getMonitoring()) &&
-					!rwf.monitoringChanged()) {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {}
-			}
-			/* update buffer items */
-			if (!rwf.getMonitoring().equals(monitoring)) {
-				lastIndex = 0;
-				rwf.clearMessagesItems();
-				monitoring = rwf.getMonitoring();
-				shouldUpdate = true;
-				rwf.setParticipantsItems(nc.user.getBuffer(monitoring).getParticipants());
-				System.out.println("Caught change!");
-			}
-			newIndex = nc.user.getBuffer(monitoring).length();
-			if (shouldUpdate || newIndex != lastIndex) {
-				arrdm = nc.user.getBuffer(monitoring).getChats(lastIndex, newIndex - 1);
-				lastIndex = newIndex;
-				rwf.updateMessagesItems(arrdm);
-				shouldUpdate = false;
-			} else { /* likely the buffers changed or participants changed */
-				rwf.setBuffersItems(nc.user.getBuffers());
-				rwf.setParticipantsItems(nc.user.getBuffer(monitoring).getParticipants());
-			}
-		}
+		/* Application ends here. */
 	}
 }

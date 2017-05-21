@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 public class IRCUser {
 	private String nickname;
+	/* ident and realname cannot change once connected to the server */
 	private final String ident;
 	private final String realname;
 	private boolean buffersHaveChanged = false;
@@ -94,6 +95,24 @@ public class IRCUser {
 		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.CHAT_MESSAGE);
 		
 		addMessageToBuffer(where, cm);		
+	}
+	
+	public void sendNotice(String where, String message) throws IOException {
+		/* PRIVMSG <where> :<message> */
+		myServer.send("NOTICE " + where + " :" + message);
+		
+		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.CHAT_MESSAGE);
+		
+		addMessageToBuffer(where, cm);		
+	}
+	
+	public void sendActionMessage(String where, String message) throws IOException {
+		/* PRIVMSG <where> :\u0001ACTION <message>\u0001 */
+		myServer.send("PRIVMSG " + where + " :\u0001ACTION " + message + "\u0001");
+		
+		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.ACTION_MESSAGE);
+		
+		addMessageToBuffer(where, cm);	
 	}
 	
 	public void joinChannel(String channel) throws IOException {

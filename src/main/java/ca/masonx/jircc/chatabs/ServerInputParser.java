@@ -1,9 +1,23 @@
+/**
+ * ServerInputParser.java
+ * 
+ * Parse a line from the IRC server into a ChatMessage and a which channel it took place in.
+ * A ChatMessage and String channel are combined into a ParserResult class (which is contained within the ServerInputParser class).
+ */
 package ca.masonx.jircc.chatabs;
 
 import java.util.Date;
 
-public class InputParser {
+public class ServerInputParser {
+	/**
+	 * 
+	 * @param line The line from the server
+	 * @return The channel and ChatMessage that the ServerInputParser returned (combined into one ParserResult class)
+	 * @throws NotChatMessageException - When the line given is not a chat message (ie, it could be a PING)
+	 * @throws ArrayIndexOutOfBoundsException - when the format of the data returned by the server is not standard and the data could not be parsed properly.
+	 */
 	public static ParserResult parseChatMessage(String line) throws NotChatMessageException, ArrayIndexOutOfBoundsException {
+		/* Default values */
 		Date now = new Date();
 		String message = "";
 		String sender = "";
@@ -15,6 +29,7 @@ public class InputParser {
 			throw new NotChatMessageException("Received data from server that does not begin with `:'.");
 		}
 		
+		/* get the kind of message */
 		line = line.substring(1);
 		String split[] = line.split(" ", 3);
 		
@@ -34,10 +49,16 @@ public class InputParser {
 			message = chanmess[1];
 			ct = ChatType.CHAT_MESSAGE;
 			
-			if (message.contains("\u0001ACTION")) {
-				/* remove leading "\0x01CTCP ACTION " and trailing "0x01" */
-				message = message.substring(8, message.length() - 1);
-				ct = ChatType.ACTION_MESSAGE;
+			if (message.charAt(0) == '\u0001') { /* CTCP */
+				if (message.contains("ACTION")) {
+					/* remove leading "\0x01CTCP ACTION " and trailing "0x01" */
+					message = message.substring(8, message.length() - 1);
+					ct = ChatType.ACTION_MESSAGE;
+				} else if (message.contains("VERSION")) {
+					/* VERSION question */
+					ct = ChatType.VERSION_MESSAGE;
+					message = "";
+				}
 			}
 		} else if (split[1].equals("PART")) {
 			/*
@@ -108,7 +129,6 @@ public class InputParser {
 			message = moresplit[1].charAt(0) == ':' ? moresplit[1].substring(1) : moresplit[1]; /* remove the leading colon if it is there */
 			ct = ChatType.MODE_MESSAGE;
 		} else if (split[1].equals("QUIT")) {
-
 			/*
 			 * Sample message: (after removing first char)
 			 * nick1!somebody@1.2.3.4 QUIT :Client Quit
@@ -139,9 +159,13 @@ public class InputParser {
 			// throw new NotChatMessageException("Not a chat message!");
 		}
 		
+		/* return the results */
 		return new ParserResult(channel, new ChatMessage(message, sender, now, ct));
 	}
 	
+	/**
+	 * Helper class for results returned from ServerInputParser.
+	 */
 	public static class ParserResult {
 		public final String channel;
 		public final ChatMessage message;
@@ -152,13 +176,3 @@ public class InputParser {
 		}
 	}
 }
-
-/*
-:ohnx-!~ohnx@1.2.3.4 JOIN #/
-:hobana.freenode.net 332 ohnx- #/ :roots here.
-:hobana.freenode.net 333 ohnx- #/ unknown 1212089057
-:hobana.freenode.net 353 ohnx- = #/ :ohnx- ohnx
-:hobana.freenode.net 366 ohnx- #/ :End of /NAMES list.
-
-:
-*/

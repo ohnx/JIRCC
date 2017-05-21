@@ -49,6 +49,7 @@ public class IRCBuffer implements Serializable {
 	
 	public void addParticipant(String pName) {
 		participants.add(pName);
+		hasParticipantsChanged = true;
 	}
 	
 	public String[] getParticipants() {
