@@ -250,4 +250,8 @@ public class RootWindowFrame extends JFrame {
 		hasRequestedSend = false;
 		return commandTextField.getText();
 	}
+	
+	public void clearSendString() {
+		commandTextField.setText("");
+	}
 }

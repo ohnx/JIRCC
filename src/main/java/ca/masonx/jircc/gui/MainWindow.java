@@ -2,9 +2,14 @@ package ca.masonx.jircc.gui;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.Date;
 
 import javax.swing.JFrame;
 
+import ca.masonx.jircc.UserInputParser;
+import ca.masonx.jircc.chatabs.ChatMessage;
+import ca.masonx.jircc.chatabs.ChatType;
 import ca.masonx.jircc.tasks.NetConnection;
 
 public class MainWindow {
@@ -12,6 +17,7 @@ public class MainWindow {
 	protected RootWindowFrame rwf;
 	protected NetConnection nc;
 	protected Thread ncThread;
+	protected UserInputParser uip;
 	
 	public MainWindow(String server, String nick) {
 		rwf = new RootWindowFrame();
@@ -27,16 +33,19 @@ public class MainWindow {
 		ncThread = new Thread(nc);
 		ncThread.start();
 		
+		// Init user input parser
+		uip = new UserInputParser(nc);
+		
+		// Catch window closes
         rwf.addWindowListener( new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
-            	System.out.println("Caught something here");
             	/* when the window is closed, the code will fallthrough to here and allow nice disconnect from server */
         		if (nc.isConnected()) {
         			nc.disconnect();
         		}
             }
-        } );
+        });
 	}
 	
 	/**
@@ -57,10 +66,28 @@ public class MainWindow {
 			while (!nc.hasBufferChanged(rwf.getMonitoring()) &&
 					!nc.user.haveBuffersChanged() &&
 					!nc.hasBufferParticipantsChanged(rwf.getMonitoring()) &&
-					!rwf.monitoringChanged()) {
+					!rwf.monitoringChanged() &&
+					!rwf.hasRequestedSend()) {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {}
+			}
+			
+			/* check if sending something */
+			if (rwf.hasRequestedSend()) {
+				String parse = rwf.getSendString();
+				try {
+					if (uip.parseUserInput(parse, monitoring)) {
+						rwf.clearSendString();
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.out.println("Failed to send the message!");
+					nc.user.getBuffer("*").addChat(new ChatMessage("[ERROR] Failed to send chat message to server!", "", new Date(), ChatType.UNKNOWN_MESSAGE));
+					e.printStackTrace();
+				} catch (ArrayIndexOutOfBoundsException e) {
+					
+				}
 			}
 			
 			/* update buffer items */
@@ -70,7 +97,6 @@ public class MainWindow {
 				monitoring = rwf.getMonitoring();
 				shouldUpdate = true;
 				rwf.setParticipantsItems(nc.user.getBuffer(monitoring).getParticipants());
-				System.out.println("Caught change!");
 			}
 			newIndex = nc.user.getBuffer(monitoring).length();
 			if (shouldUpdate || newIndex != lastIndex) {

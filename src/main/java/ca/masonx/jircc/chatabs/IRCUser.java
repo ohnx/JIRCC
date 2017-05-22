@@ -115,6 +115,10 @@ public class IRCUser {
 		addMessageToBuffer(where, cm);	
 	}
 	
+	public void sendRaw(String message) throws IOException {
+		myServer.send(message);
+	}
+	
 	public void joinChannel(String channel) throws IOException {
 		if (channel.charAt(0) != '#') return;
 		
