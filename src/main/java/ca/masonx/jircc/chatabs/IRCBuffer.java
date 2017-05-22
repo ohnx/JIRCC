@@ -1,6 +1,7 @@
 package ca.masonx.jircc.chatabs;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class IRCBuffer implements Serializable {
@@ -9,6 +10,7 @@ public class IRCBuffer implements Serializable {
 	private CopyOnWriteArrayList<String> participants;
 	private boolean hasChanged = false;
 	private boolean hasParticipantsChanged = false;
+	private boolean isActive = true;
 	public final String name;
 	
 	public IRCBuffer(String name) {
@@ -48,11 +50,14 @@ public class IRCBuffer implements Serializable {
 	}
 	
 	public void addParticipant(String pName) {
-		participants.add(pName);
-		hasParticipantsChanged = true;
+		if (!participants.contains(pName)) {
+			participants.add(pName);
+			hasParticipantsChanged = true;
+		}
 	}
 	
 	public String[] getParticipants() {
+		Collections.sort(participants);
 		return participants.toArray(new String[participants.size()]);
 	}
 
@@ -113,5 +118,13 @@ public class IRCBuffer implements Serializable {
 			ret += cm + "\n";
 		}
 		return ret;
+	}
+	
+	public boolean isActive() {
+		return isActive;
+	}
+	
+	public void setActive(boolean activeness) {
+		isActive = activeness;
 	}
 }

@@ -28,14 +28,22 @@ public class UserInputParser {
 				nc.user.sendRaw("WHOIS " + inputargs[1]);
 			} else if (command.equals("join")) {
 				nc.user.joinChannel(inputargs[1]);
+			} else if (command.equals("nick")) {
+				nc.user.changeNickname(inputargs[1]);
 			} else if (command.equals("part")) {
-				// TODO: NYI
+				if (inputargs.length == 1) {
+					// no part reason
+					nc.user.partChannel(currentchan, "Leaving");
+				} else {
+					nc.user.partChannel(currentchan, inputargs[1]);
+				}
 			} else if (command.equals("mode")) {
 				// TODO: NYI
 			} else {
 				return false;
 			}
 		} else { // just a chat message
+			if (currentchan.equals("*")) return false;
 			nc.user.sendMessage(currentchan, input);
 		}
 		return true;
