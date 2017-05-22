@@ -18,7 +18,7 @@ public class MainWindow {
 		// Basic window properties
 		rwf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		rwf.setTitle("JIRCC");
-		rwf.setSize(550, 450);
+		rwf.setSize(600, 450);
 		// Center the frame on screen
 		rwf.setLocationRelativeTo(null);
 		
