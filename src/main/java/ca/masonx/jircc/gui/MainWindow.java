@@ -37,13 +37,12 @@ public class MainWindow {
 		uip = new UserInputParser(nc);
 		
 		// Catch window closes
-        rwf.addWindowListener( new WindowAdapter() {
+        rwf.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent we) {
             	/* when the window is closed, the code will fallthrough to here and allow nice disconnect from server */
-        		if (nc.isConnected()) {
-        			nc.disconnect();
-        		}
+        		nc.disconnect();
+        		System.out.println("** Caught close!");
             }
         });
 	}

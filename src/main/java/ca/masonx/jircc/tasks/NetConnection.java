@@ -81,13 +81,11 @@ public class NetConnection implements Runnable {
 				try {
 					/* check if this is a chat message */
 					pr = ServerInputParser.parseChatMessage(line);
-					System.out.println("*** Chan:`" + pr.channel + "`" + ", " + pr.message);
 					
 					/* not one of the types of chat messages */
 					if (pr.message.ct == ChatType.UNKNOWN_MESSAGE) {
-						/* login successful, join whatever initial channels the user wants to join */
+						/* login successful */
 						if (pr.message.message.contains("005")) {
-							user.joinChannel("#ohnxsecret");
 						} else if (pr.message.message.contains("353")) {
 			            	/* this is a NAMES listing for a channel, so we parse it.
 			            	 * 
@@ -111,14 +109,8 @@ public class NetConnection implements Runnable {
 					} else if (pr.message.ct == ChatType.VERSION_MESSAGE) {
 						/* Send CTCP VERSION reply */
 						user.sendNotice(pr.message.sender, "\u0001VERSION "+RootApplicationController.version+"\u0001");
-					} else {
-						if (pr.message.message.contains("JOINCHAN")) {
-							user.joinChannel("#freenode");
-						} else if (pr.message.message.contains("BYE")) {
-							disconnect();
-						} else if (pr.message.message.contains("TESTS")) {
-							user.sendActionMessage("#ohnxsecret", "testing things!");
-						}
+					} else if (pr.message.ct == ChatType.NICK_MESSAGE && pr.message.sender.equals(user.getNickname())) {
+						user.changeNickname(pr.message.message, true);
 					}
 					
 					if (addToBuffer) user.addMessageToBuffer(pr.channel, pr.message);

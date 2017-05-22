@@ -1,8 +1,11 @@
 package ca.masonx.jircc.chatabs;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class IRCUser {
@@ -15,16 +18,16 @@ public class IRCUser {
 	private HashMap<String,IRCBuffer> buffers;
 	
 	public IRCUser(String nickname) {
-		this.nickname = nickname;
-		this.ident = nickname;
-		this.realname = nickname;
-		buffers = new HashMap<String,IRCBuffer>();
+		this(nickname, nickname, nickname);
 	}
 	
 	public IRCUser(String nickname, String ident, String realname) {
 		this.nickname = nickname;
 		this.ident = ident;
 		this.realname = realname;
+		buffers = new HashMap<String,IRCBuffer>();
+		createNewBuffer("*");
+		buffers.get("*").addParticipant(nickname);
 	}
 	
 	public IRCBuffer getBuffer(String name) {
@@ -38,7 +41,9 @@ public class IRCUser {
 	}
 	
 	public String[] getBuffers() {
-		return buffers.keySet().toArray(new String[buffers.size()]);
+		List<String> list = new ArrayList<String>(buffers.keySet());
+		Collections.sort(list);
+		return list.toArray(new String[buffers.size()]);
 	}
 	
 	public boolean haveBuffersChanged() {
@@ -67,9 +72,13 @@ public class IRCUser {
 	}
 	
 	public void changeNickname(String nickname) throws IOException {
-		this.nickname = nickname;
 		/* NICK <nickname> */
 		myServer.send("NICK " + nickname);
+		changeNickname(nickname, true);
+	}
+	
+	public void changeNickname(String nickname, boolean doNothing) throws IOException {
+		this.nickname = nickname;
 	}
 	
 	public void connectToServer(IRCServer server) throws IOException {
@@ -93,7 +102,6 @@ public class IRCUser {
 		myServer.send("PRIVMSG " + where + " :" + message);
 		
 		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.CHAT_MESSAGE);
-		
 		addMessageToBuffer(where, cm);		
 	}
 	
@@ -102,7 +110,6 @@ public class IRCUser {
 		myServer.send("NOTICE " + where + " :" + message);
 		
 		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.CHAT_MESSAGE);
-		
 		addMessageToBuffer(where, cm);		
 	}
 	
@@ -111,7 +118,6 @@ public class IRCUser {
 		myServer.send("PRIVMSG " + where + " :\u0001ACTION " + message + "\u0001");
 		
 		ChatMessage cm = new ChatMessage(message, nickname, new Date(), ChatType.ACTION_MESSAGE);
-		
 		addMessageToBuffer(where, cm);	
 	}
 	
@@ -126,12 +132,21 @@ public class IRCUser {
 		createNewBuffer(channel);
 	}
 	
+	public void partChannel(String channel, String message) throws IOException {
+		if (channel.charAt(0) != '#') return;
+		
+		myServer.send("PART " + channel + " :" + message);
+	}
+	
 	public void addNamesToBuffer(String channel, String names[]) {
 		IRCBuffer buf = createNewBuffer(channel);
 		
 		for (String name : names) {
-			/* when a user is voiced or opped, their nick starts with a @ or +; we do not want this in our listings */
-			if (name.charAt(0) == '@' || name.charAt(0) == '+') name = name.substring(1);
+			/* when a user is voiced or opped or something similar,
+			 * their nick starts with a ~&@%+; we do not want this in our listings */
+			if (name.charAt(0) == '~' || name.charAt(0) == '&' || name.charAt(0) == '@'
+				|| name.charAt(0) == '%' || name.charAt(0) == '+')
+				name = name.substring(1);
 			if (name.equals(nickname)) continue; /* skip ourselves */
 			buf.addParticipant(name);
 		}
@@ -139,6 +154,8 @@ public class IRCUser {
 	
 	public void addMessageToBuffer(String channel, ChatMessage cm) {
 		String bufname = channel;
+		boolean addNick = false;
+		
 		if (channel.equals("_")) {
 			/* add it to all! */
 			for (Entry<String, IRCBuffer> ib : buffers.entrySet()) {
@@ -150,10 +167,16 @@ public class IRCUser {
 		} else if (channel.charAt(0) != '#' && !cm.sender.equals(nickname)) {
 			/* Check if this is a private message; if it is, we need to swap the buffer name */
 			bufname = cm.sender;
+			addNick = true;
 		}
 		
 		IRCBuffer buf = createNewBuffer(bufname);
 		buf.addChat(cm);
+		
+		if (addNick) {
+			buf.addParticipant(bufname);
+		}
+		
 		/* Debug code.
 		System.out.println("Buffer is now:");
 		

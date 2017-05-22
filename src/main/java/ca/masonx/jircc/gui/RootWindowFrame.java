@@ -185,8 +185,10 @@ public class RootWindowFrame extends JFrame {
 		
 		/* panel minimum sizes */
 		buffersScroll.setMinimumSize(new Dimension(150, 200));
+		namesScroll.setMaximumSize(new Dimension(250, Integer.MAX_VALUE));
 		messagesAndSendContainer.setMinimumSize(new Dimension(300, 200));
 		namesScroll.setMinimumSize(new Dimension(150, 200));
+		namesScroll.setMaximumSize(new Dimension(250, Integer.MAX_VALUE));
 		
 		/* main panel management */
 		this.setLayout(new GridLayout(1,2));
@@ -197,7 +199,7 @@ public class RootWindowFrame extends JFrame {
 		messagesModel.clear();
 	}
 	
-	public void updateMessagesItems(final String items[]) {
+	public void updateMessagesItems(final String[] items) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				for (String s : items) {
@@ -207,7 +209,7 @@ public class RootWindowFrame extends JFrame {
 		});
 	}
 	
-	public void setBuffersItems(final String items[]) {
+	public void setBuffersItems(final String[] items) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				buffersModel.clear();
